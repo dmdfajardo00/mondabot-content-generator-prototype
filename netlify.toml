@@ -5,6 +5,8 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_FLAGS = "--production=false"
+  # Disable secrets scanning for build output
+  SECRETS_SCAN_OMIT_PATHS = ".next/**,_next/**,.netlify/**"
 
 # Netlify Edge Functions and redirects
 [[redirects]]
