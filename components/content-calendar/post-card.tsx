@@ -41,7 +41,7 @@ export function PostCard({
 
   return (
     <Card className={cn(
-      'border-gray-200 hover:shadow-md transition-shadow duration-200',
+      'border-gray-300 hover:shadow-md transition-shadow duration-200',
       isCompact && 'p-2',
       className
     )}>

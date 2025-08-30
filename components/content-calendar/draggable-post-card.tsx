@@ -65,7 +65,7 @@ export function DraggablePostCard({
     >
       <Card
         className={cn(
-          'cursor-pointer transition-all duration-200 hover:shadow-md border-l-4 border-l-gray-300',
+          'cursor-pointer transition-all duration-200 hover:shadow-md border-l-4 border-l-gray-300 border border-gray-300',
           dndIsDragging && 'opacity-60 rotate-3 scale-105 shadow-xl border-2 border-gray-300',
           isDragging && 'opacity-30'
         )}

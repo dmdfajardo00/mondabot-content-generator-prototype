@@ -160,7 +160,7 @@ export function PostDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-900">
             Edit Post Details
@@ -184,6 +184,7 @@ export function PostDetailModal({
                       <Input 
                         placeholder="Enter post title..." 
                         className="border-gray-300 focus:border-gray-400"
+                        autoFocus={false}
                         {...field} 
                       />
                     </FormControl>
