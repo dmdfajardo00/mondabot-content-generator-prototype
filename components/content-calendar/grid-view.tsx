@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { Post } from '@/types/post'
 import { PostCard } from './post-card'
+import { PostDetailModal } from './post-detail-modal'
 import { EmptyState } from './empty-state'
 import { cn } from '@/lib/utils'
 
@@ -9,9 +11,9 @@ interface GridViewProps {
   posts: Post[]
   isLoading?: boolean
   onCreatePost?: () => void
-  onEditPost?: (post: Post) => void
   onDeletePost?: (post: Post) => void
   onViewPost?: (post: Post) => void
+  onUpdatePost?: (post: Post) => void
   className?: string
 }
 
@@ -19,11 +21,22 @@ export function GridView({
   posts,
   isLoading = false,
   onCreatePost,
-  onEditPost,
   onDeletePost,
   onViewPost,
+  onUpdatePost,
   className
 }: GridViewProps) {
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleCardClick = (post: Post) => {
+    setSelectedPost(post)
+    setIsModalOpen(true)
+  }
+
+  const handleModalSave = (updatedPost: Post) => {
+    onUpdatePost?.(updatedPost)
+  }
   if (!isLoading && posts.length === 0) {
     return (
       <EmptyState
@@ -47,13 +60,23 @@ export function GridView({
             key={post.id}
             post={post}
             view="grid"
-            onEdit={onEditPost}
             onDelete={onDeletePost}
-            onView={onViewPost}
-            className="transition-all duration-200 hover:scale-[1.02]"
+            onView={() => handleCardClick(post)}
+            className="transition-all duration-200 hover:scale-[1.02] cursor-pointer"
           />
         ))}
       </div>
+
+      {/* Post Detail Modal */}
+      <PostDetailModal
+        post={selectedPost}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setSelectedPost(null)
+        }}
+        onSave={handleModalSave}
+      />
     </div>
   )
 }

@@ -3,7 +3,7 @@
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { motion } from 'framer-motion'
-import { GripVertical, Edit, Trash2 } from 'lucide-react'
+import { GripVertical, Trash2 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,6 @@ import { cn } from '@/lib/utils'
 interface DraggablePostCardProps {
   post: Post
   onClick: () => void
-  onEdit?: (post: Post) => void
   onDelete?: (post: Post) => void
   isDragging?: boolean
 }
@@ -21,7 +20,6 @@ interface DraggablePostCardProps {
 export function DraggablePostCard({
   post,
   onClick,
-  onEdit,
   onDelete,
   isDragging = false
 }: DraggablePostCardProps) {
@@ -41,11 +39,6 @@ export function DraggablePostCard({
 
   const style = {
     transform: CSS.Translate.toString(transform),
-  }
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onEdit?.(post)
   }
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -72,10 +65,7 @@ export function DraggablePostCard({
     >
       <Card
         className={cn(
-          'cursor-pointer transition-all duration-200 hover:shadow-md border-l-4',
-          post.status === 'Scheduled' && 'border-l-blue-500',
-          post.status === 'Published' && 'border-l-green-500',
-          post.status === 'Needs Approval' && 'border-l-amber-500',
+          'cursor-pointer transition-all duration-200 hover:shadow-md border-l-4 border-l-gray-300',
           dndIsDragging && 'opacity-60 rotate-3 scale-105 shadow-xl border-2 border-gray-300',
           isDragging && 'opacity-30'
         )}
@@ -125,18 +115,8 @@ export function DraggablePostCard({
           )}
 
           {/* Quick Actions (appear on hover) */}
-          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-            {onEdit && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                onClick={handleEdit}
-              >
-                <Edit className="h-3 w-3" />
-              </Button>
-            )}
-            {onDelete && (
+          {onDelete && (
+            <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button
                 variant="ghost"
                 size="icon"
@@ -145,8 +125,8 @@ export function DraggablePostCard({
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>

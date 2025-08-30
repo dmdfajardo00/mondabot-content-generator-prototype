@@ -56,13 +56,11 @@ const formSchema = z.object({
     message: 'Description must be 500 characters or less.',
   }),
   date: z.date({
-    required_error: 'A posting date is required.',
+    message: 'A posting date is required.',
   }),
-  tags: z.array(z.string()).min(1, {
-    message: 'At least one tag is required.',
-  }).max(10, {
+  tags: z.array(z.string()).max(10, {
     message: 'Maximum 10 tags allowed.',
-  }),
+  }).optional(),
   platforms: z.array(z.enum(['Facebook', 'LinkedIn', 'YouTube', 'Instagram'])).min(1, {
     message: 'At least one platform must be selected.',
   }),
@@ -135,11 +133,11 @@ export function PostDetailModal({
         title: values.title,
         description: values.description,
         date: format(values.date, 'yyyy-MM-dd'),
-        tags: values.tags,
+        tags: values.tags || [],
         platforms: values.platforms,
         text: values.text || post.text,
         // Update hashtags from tags
-        hashtags: values.tags.map(tag => `#${tag.replace(/\s+/g, '')}`).join(' ')
+        hashtags: (values.tags || []).map(tag => `#${tag.replace(/\s+/g, '')}`).join(' ')
       }
 
       onSave(updatedPost)
@@ -240,13 +238,6 @@ export function PostDetailModal({
                 )}
               />
 
-              {/* Status Display (read-only) */}
-              <div className="flex flex-col space-y-2">
-                <label className="text-sm font-medium text-gray-700">Status</label>
-                <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  <span className="text-sm text-gray-600">{post.status}</span>
-                </div>
-              </div>
             </div>
 
             {/* Description Field */}
@@ -302,7 +293,7 @@ export function PostDetailModal({
                   <FormLabel className="text-gray-700">Tags</FormLabel>
                   <FormControl>
                     <TagInput
-                      tags={field.value}
+                      tags={field.value || []}
                       onChange={field.onChange}
                       placeholder="Add tag and press Enter..."
                       maxTags={10}
@@ -326,6 +317,7 @@ export function PostDetailModal({
                   <FormLabel className="text-gray-700">Platforms</FormLabel>
                   <FormControl>
                     <PlatformSelector
+                      platforms={['Facebook', 'LinkedIn', 'YouTube', 'Instagram']}
                       selectedPlatforms={field.value}
                       onChange={field.onChange}
                       className="mt-2"

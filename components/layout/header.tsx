@@ -18,7 +18,7 @@ export function Header({ className }: HeaderProps) {
         <div className="flex items-center space-x-4">
           <div>
             <h1 className="text-xl font-semibold text-gray-900">Content Calendar</h1>
-            <p className="text-sm text-gray-600">Manage your restaurant's social content</p>
+            <p className="text-sm text-gray-600">Manage your restaurant&apos;s social content</p>
           </div>
         </div>
 

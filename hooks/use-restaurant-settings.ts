@@ -6,7 +6,8 @@ export interface RestaurantSettings {
   cuisineType: string
   dailyCustomerCount: string
   teamSize: string
-  socialPlatforms: string[]
+  mainSocialPlatform: string
+  weeklyPostCount: string
   brandTone: string
 }
 
@@ -16,7 +17,8 @@ const DEFAULT_SETTINGS: RestaurantSettings = {
   cuisineType: '',
   dailyCustomerCount: '',
   teamSize: '',
-  socialPlatforms: [],
+  mainSocialPlatform: '',
+  weeklyPostCount: '',
   brandTone: ''
 }
 
@@ -31,12 +33,36 @@ export function useRestaurantSettings() {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
+      
       if (stored) {
         const parsed = JSON.parse(stored)
-        setSettings(parsed)
+        
+        // Migration: Handle old socialPlatforms array format
+        if (parsed.socialPlatforms && Array.isArray(parsed.socialPlatforms)) {
+          const migrated = {
+            ...DEFAULT_SETTINGS,
+            ...parsed,
+            mainSocialPlatform: parsed.socialPlatforms[0] || '',
+            weeklyPostCount: parsed.weeklyPostCount || '',
+          }
+          delete migrated.socialPlatforms
+          setSettings(migrated)
+          // Save migrated data
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
+        } else {
+          // Ensure new fields exist with defaults
+          const updated = {
+            ...DEFAULT_SETTINGS,
+            ...parsed,
+          }
+          setSettings(updated)
+        }
+      } else {
+        setSettings(DEFAULT_SETTINGS)
       }
     } catch (error) {
       console.error('Failed to load settings:', error)
+      setSettings(DEFAULT_SETTINGS)
     } finally {
       setIsLoading(false)
     }
@@ -73,9 +99,6 @@ export function useRestaurantSettings() {
 
   // Check if settings are complete
   const isComplete = Object.entries(settings).every(([key, value]) => {
-    if (key === 'socialPlatforms') {
-      return Array.isArray(value) && value.length > 0
-    }
     return value !== ''
   })
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { format, addDays, subDays, startOfWeek, endOfWeek } from 'date-fns'
+import { formatDateToLocal, parseDateFromLocal, isToday as isTodayLocal, isPastDate } from '@/lib/date-utils'
 import {
   DndContext,
   closestCenter,
@@ -33,7 +34,6 @@ import { DroppableCalendarCell } from './droppable-calendar-cell'
 interface CalendarViewDndProps {
   posts: Post[]
   onUpdatePost: (post: Post) => void
-  onEditPost?: (post: Post) => void
   onDeletePost?: (post: Post) => void
   isLoading?: boolean
   className?: string
@@ -42,7 +42,6 @@ interface CalendarViewDndProps {
 export function CalendarViewDnd({
   posts,
   onUpdatePost,
-  onEditPost,
   onDeletePost,
   isLoading = false,
   className
@@ -73,13 +72,13 @@ export function CalendarViewDnd({
   
   // Generate calendar days
   const days = []
-  const currentDateStr = new Date().toISOString().split('T')[0]
+  const currentDateStr = formatDateToLocal(new Date())
   
   for (let i = 0; i < 42; i++) {
     const date = new Date(startDate)
     date.setDate(startDate.getDate() + i)
     
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = formatDateToLocal(date) // Use local timezone formatting
     const dayPosts = posts.filter(post => post.date === dateStr)
     const isCurrentMonth = date.getMonth() === currentDate.getMonth()
     const isToday = dateStr === currentDateStr
@@ -110,7 +109,7 @@ export function CalendarViewDnd({
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event
-    const post = posts.find(p => p.id === Number(active.id))
+    const post = posts.find(p => p.id === active.id)
     if (post) {
       setDraggedPost(post)
     }
@@ -127,23 +126,21 @@ export function CalendarViewDnd({
       return
     }
 
-    const postId = Number(active.id)
+    const postId = active.id as string
     const newDate = over.id as string
     
     const post = posts.find(p => p.id === postId)
     if (!post) return
 
-    // Check if the date is valid (not in the past)
-    const targetDate = new Date(newDate)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    if (targetDate < today) {
+    // Check if the date is valid (not in the past) using local timezone
+    if (isPastDate(newDate)) {
       toast.error('Cannot schedule in the past', {
         description: 'Please select a current or future date.',
       })
       return
     }
+
+    const targetDate = parseDateFromLocal(newDate)
 
     if (post.date !== newDate) {
       const updatedPost = { ...post, date: newDate }
@@ -242,7 +239,6 @@ export function CalendarViewDnd({
                     key={post.id}
                     post={post}
                     onClick={() => handlePostClick(post)}
-                    onEdit={onEditPost}
                     onDelete={onDeletePost}
                     isDragging={draggedPost?.id === post.id}
                   />

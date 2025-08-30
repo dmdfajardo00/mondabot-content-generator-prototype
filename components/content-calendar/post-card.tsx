@@ -2,17 +2,12 @@
 
 import { Post } from '@/types/post'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { 
   MoreHorizontal, 
   Calendar, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle,
   Eye,
-  Edit,
   Trash2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -22,7 +17,6 @@ interface PostCardProps {
   post: Post
   view?: 'grid' | 'calendar' | 'kanban'
   className?: string
-  onEdit?: (post: Post) => void
   onDelete?: (post: Post) => void
   onView?: (post: Post) => void
 }
@@ -31,36 +25,9 @@ export function PostCard({
   post, 
   view = 'grid', 
   className,
-  onEdit,
   onDelete,
   onView
 }: PostCardProps) {
-  const getStatusIcon = (status: Post['status']) => {
-    switch (status) {
-      case 'Scheduled':
-        return <Clock className="h-3 w-3" />
-      case 'Published':
-        return <CheckCircle className="h-3 w-3" />
-      case 'Needs Approval':
-        return <AlertCircle className="h-3 w-3" />
-      default:
-        return null
-    }
-  }
-
-  const getStatusColor = (status: Post['status']) => {
-    switch (status) {
-      case 'Scheduled':
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-      case 'Published':
-        return 'bg-gray-900 text-white'
-      case 'Needs Approval':
-        return 'bg-gray-100 text-gray-600 border-gray-300'
-      default:
-        return 'bg-gray-100 text-gray-600'
-    }
-  }
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
@@ -127,54 +94,31 @@ export function PostCard({
           </p>
         </div>
 
-        {/* Status and Actions */}
-        <div className="flex items-center justify-between">
-          <Badge
-            variant="outline"
-            className={cn(
-              'text-xs',
-              getStatusColor(post.status)
+        {/* Actions */}
+        {!isCompact && (
+          <div className="flex items-center justify-end space-x-1">
+            {onView && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-gray-400 hover:text-gray-600"
+                onClick={() => onView(post)}
+              >
+                <Eye className="h-3 w-3" />
+              </Button>
             )}
-          >
-            {getStatusIcon(post.status)}
-            <span className="ml-1">{post.status}</span>
-          </Badge>
-
-          {!isCompact && (
-            <div className="flex items-center space-x-1">
-              {onView && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-gray-400 hover:text-gray-600"
-                  onClick={() => onView(post)}
-                >
-                  <Eye className="h-3 w-3" />
-                </Button>
-              )}
-              {onEdit && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-gray-400 hover:text-gray-600"
-                  onClick={() => onEdit(post)}
-                >
-                  <Edit className="h-3 w-3" />
-                </Button>
-              )}
-              {onDelete && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-gray-400 hover:text-red-600"
-                  onClick={() => onDelete(post)}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-gray-400 hover:text-red-600"
+                onClick={() => onDelete(post)}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Compact view date */}
         {isCompact && (

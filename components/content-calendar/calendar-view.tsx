@@ -7,7 +7,6 @@ interface CalendarViewProps {
   posts: Post[]
   isLoading?: boolean
   onCreatePost?: () => void
-  onEditPost?: (post: Post) => void
   onDeletePost?: (post: Post) => void
   onViewPost?: (post: Post) => void
   onUpdatePost?: (post: Post) => void
@@ -18,7 +17,6 @@ export function CalendarView({
   posts,
   isLoading = false,
   onCreatePost,
-  onEditPost,
   onDeletePost,
   onViewPost,
   onUpdatePost,
@@ -32,7 +30,6 @@ export function CalendarView({
     <CalendarViewDnd
       posts={posts}
       onUpdatePost={handleUpdatePost}
-      onEditPost={onEditPost}
       onDeletePost={onDeletePost}
       isLoading={isLoading}
       className={className}

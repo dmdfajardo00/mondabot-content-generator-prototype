@@ -2,7 +2,7 @@ import { Post } from '@/types/post'
 
 export const mockPosts: Post[] = [
   {
-    id: 1,
+    id: '1',
     date: '2025-09-01',
     title: 'Fajita Fiesta Special',
     text: 'Kick off the month with our sizzling Fajita Fiesta! 🔥 Perfect for sharing with friends and family.',
@@ -14,7 +14,7 @@ export const mockPosts: Post[] = [
     status: 'Scheduled'
   },
   {
-    id: 2,
+    id: '2',
     date: '2025-09-03',
     title: 'Taco Tuesday Upgrade',
     text: 'Taco Tuesday just got a major upgrade. 🌮 Come try our new Al Pastor tacos!',
@@ -26,7 +26,7 @@ export const mockPosts: Post[] = [
     status: 'Scheduled'
   },
   {
-    id: 3,
+    id: '3',
     date: '2025-09-05',
     title: 'Weekend Margarita Special',
     text: 'Weekend vibes start here. Grab a margarita and relax on our patio. 🍹',
@@ -38,7 +38,7 @@ export const mockPosts: Post[] = [
     status: 'Needs Approval'
   },
   {
-    id: 4,
+    id: '4',
     date: '2025-09-08',
     title: 'Meet Chef Rodriguez',
     text: 'Meet the chef behind the magic! Chef Rodriguez brings 20 years of experience.',
@@ -50,7 +50,7 @@ export const mockPosts: Post[] = [
     status: 'Scheduled'
   },
   {
-    id: 5,
+    id: '5',
     date: '2025-09-10',
     title: 'Fresh Guacamole Daily',
     text: 'Did you know we make our guacamole fresh to order, every single time? 🥑',
@@ -62,7 +62,7 @@ export const mockPosts: Post[] = [
     status: 'Published'
   },
   {
-    id: 6,
+    id: '6',
     date: '2025-09-12',
     title: 'Customer Spotlight',
     text: 'Customer spotlight! We love seeing your photos. Thanks for sharing! 📸',
@@ -74,7 +74,7 @@ export const mockPosts: Post[] = [
     status: 'Needs Approval'
   },
   {
-    id: 7,
+    id: '7',
     date: '2025-09-15',
     title: 'Sunday Family Brunch',
     text: 'Sunday Funday Special! Bring the whole family for our all-you-can-eat brunch buffet.',
@@ -86,7 +86,7 @@ export const mockPosts: Post[] = [
     status: 'Scheduled'
   },
   {
-    id: 8,
+    id: '8',
     date: '2025-09-18',
     title: 'New Vegan Menu Items',
     text: 'New menu alert! 🎉 Introducing our vegan enchiladas with cashew cream sauce.',
@@ -98,7 +98,7 @@ export const mockPosts: Post[] = [
     status: 'Needs Approval'
   },
   {
-    id: 9,
+    id: '9',
     date: '2025-09-20',
     title: 'Mariachi Friday Nights',
     text: 'Friday night = Mariachi night! Live music starts at 7pm. Reserve your table now!',
@@ -110,7 +110,7 @@ export const mockPosts: Post[] = [
     status: 'Published'
   },
   {
-    id: 10,
+    id: '10',
     date: '2025-09-25',
     title: 'Team Appreciation',
     text: 'Behind every great meal is a great team. Shoutout to our amazing kitchen staff!',

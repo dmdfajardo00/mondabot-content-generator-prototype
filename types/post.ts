@@ -1,5 +1,5 @@
 export interface Post {
-  id: number
+  id: string
   date: string
   title: string
   text: string
@@ -22,7 +22,7 @@ export interface ViewState {
 }
 
 export interface DragItem {
-  id: number
+  id: string
   type: 'post'
   data: Post
 }

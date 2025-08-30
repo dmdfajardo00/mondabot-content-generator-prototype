@@ -17,6 +17,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Restaurant Content Calendar",
   description: "Manage your restaurant's social media content calendar",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '16x16', type: 'image/x-icon' },
+      { url: '/icons/favicon-16x16.svg', sizes: '16x16', type: 'image/svg+xml' },
+      { url: '/icons/favicon-32x32.svg', sizes: '32x32', type: 'image/svg+xml' },
+      { url: '/icons/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/icons/apple-touch-icon.svg', sizes: '180x180', type: 'image/svg+xml' },
+    ],
+  },
 };
 
 export default function RootLayout({

@@ -12,7 +12,6 @@ interface KanbanViewProps {
   posts: Post[]
   isLoading?: boolean
   onCreatePost?: () => void
-  onEditPost?: (post: Post) => void
   onDeletePost?: (post: Post) => void
   onViewPost?: (post: Post) => void
   className?: string
@@ -46,7 +45,6 @@ export function KanbanView({
   posts,
   isLoading = false,
   onCreatePost,
-  onEditPost,
   onDeletePost,
   onViewPost,
   className
@@ -114,7 +112,6 @@ export function KanbanView({
                           <PostCard
                             post={post}
                             view="kanban"
-                            onEdit={onEditPost}
                             onDelete={onDeletePost}
                             onView={onViewPost}
                             className="shadow-sm hover:shadow-md bg-white"
