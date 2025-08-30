@@ -1,26 +1,49 @@
 [build]
   command = "npm run build"
+  publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   NPM_FLAGS = "--production=false"
-  # Disable secrets scanning for build output
   SECRETS_SCAN_OMIT_PATHS = ".next/**,_next/**,.netlify/**"
 
-# Essential: Enable Next.js plugin for Netlify
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+# Critical: Direct static asset serving
+[[redirects]]
+  from = "/_next/static/*"
+  to = "/.next/static/:splat"
+  status = 200
 
-# Custom headers for security
+[[redirects]]
+  from = "/_next/*"
+  to = "/.next/:splat"  
+  status = 200
+
+# API routes
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/nextjs"
+  status = 200
+
+# SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/nextjs"
+  status = 200
+
+# MIME type headers
+[[headers]]
+  for = "/_next/static/chunks/*.js"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+
+[[headers]]
+  for = "/_next/static/css/*.css"
+  [headers.values]
+    Content-Type = "text/css; charset=utf-8"
+
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-
-# Environment variables required for deployment
-# Set these in Netlify UI:
-# NEXT_PUBLIC_SUPABASE_URL
-# NEXT_PUBLIC_SUPABASE_ANON_KEY  
-# SUPABASE_SERVICE_ROLE_KEY
