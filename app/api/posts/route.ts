@@ -7,6 +7,12 @@ export async function GET() {
   try {
     console.log('🚀 API: Fetching posts with service role...')
     
+    // Check if Supabase is configured
+    if (!supabaseAdmin) {
+      console.warn('⚠️ API: Supabase not configured - missing environment variables')
+      return NextResponse.json([])
+    }
+    
     const { data, error } = await supabaseAdmin
       .from('content_dashboard')
       .select(`
@@ -54,6 +60,12 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 })
     }
     
+    // Check if Supabase is configured
+    if (!supabaseAdmin) {
+      console.warn('⚠️ API: Supabase not configured - missing environment variables')
+      return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
+    }
+    
     const { error } = await supabaseAdmin
       .from('content_dashboard')
       .delete()
@@ -81,6 +93,12 @@ export async function PUT(request: Request) {
     
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 })
+    }
+    
+    // Check if Supabase is configured
+    if (!supabaseAdmin) {
+      console.warn('⚠️ API: Supabase not configured - missing environment variables')
+      return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
     }
     
     const { data: updatedData, error } = await supabaseAdmin

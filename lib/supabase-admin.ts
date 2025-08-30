@@ -1,10 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
 // Admin client with service role - bypasses RLS
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+// Will return empty data if environment variables are not set
+export const supabaseAdmin = supabaseUrl && supabaseServiceKey 
+  ? createClient(supabaseUrl, supabaseServiceKey)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  : null as any
 
 // Test function to check if RLS is blocking access
 export async function testWithServiceRole() {
