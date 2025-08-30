@@ -1,45 +1,14 @@
 [build]
   command = "npm run build"
-  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--production=false"
   SECRETS_SCAN_OMIT_PATHS = ".next/**,_next/**,.netlify/**"
 
-# Critical: Direct static asset serving
-[[redirects]]
-  from = "/_next/static/*"
-  to = "/.next/static/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/_next/*"
-  to = "/.next/:splat"  
-  status = 200
-
-# API routes
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/nextjs"
-  status = 200
-
-# SPA routing
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/nextjs"
-  status = 200
-
-# MIME type headers
-[[headers]]
-  for = "/_next/static/chunks/*.js"
-  [headers.values]
-    Content-Type = "application/javascript; charset=utf-8"
-
-[[headers]]
-  for = "/_next/static/css/*.css"
-  [headers.values]
-    Content-Type = "text/css; charset=utf-8"
+# Use Next.js plugin - it's the only reliable way
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [[headers]]
   for = "/*"
