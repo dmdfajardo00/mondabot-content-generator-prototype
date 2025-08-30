@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Essential for Netlify deployment with API routes
+  trailingSlash: true,
   images: {
     remotePatterns: [
       {
