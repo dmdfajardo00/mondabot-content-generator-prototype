@@ -8,37 +8,128 @@ import { GridView } from '@/components/content-calendar/grid-view'
 import { CalendarView } from '@/components/content-calendar/calendar-view'
 import { KanbanView } from '@/components/content-calendar/kanban-view'
 import { LoadingSkeleton } from '@/components/content-calendar/loading-skeleton'
-import { useRestaurantSettings } from '@/hooks/use-restaurant-settings'
+import { useRestaurantSettingsV2 } from '@/hooks/use-restaurant-settings-v2'
 import { toast } from 'sonner'
+
+const GENERATION_STORAGE_KEY = 'content_generation_state'
+const GENERATION_TIMEOUT = 5 * 60 * 1000 // 5 minutes timeout
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<ViewMode>('grid')
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
-  const { settings, isComplete } = useRestaurantSettings()
+  const [previousPostCount, setPreviousPostCount] = useState(0)
+  const { settings, isComplete } = useRestaurantSettingsV2()
 
   // Load posts from Supabase
-  useEffect(() => {
-    const loadPosts = async () => {
-      try {
+  const loadPosts = async (isAutoRefresh = false) => {
+    try {
+      if (!isAutoRefresh) {
         setIsLoading(true)
+      }
+      
+      const posts = isAutoRefresh 
+        ? await PostsAPI.getAll() // No delay for auto-refresh
+        : await PostsAPI.getAllWithDelay() // Maintains 1-second loading delay for initial load
+      
+      // Check if new posts were added (for generation tracking)
+      if (isGenerating && posts.length > previousPostCount) {
+        // New posts detected
+        console.log('New posts detected:', posts.length - previousPostCount)
         
-        const posts = await PostsAPI.getAllWithDelay() // Maintains 1-second loading delay
-        setPosts(posts)
-      } catch (error) {
-        console.error('❌ Failed to load posts:', error)
+        // If we've detected a significant number of new posts (e.g., 3 or more),
+        // we can assume generation is complete even without webhook response
+        if (posts.length - previousPostCount >= 3) {
+          console.log('Auto-clearing generation state after detecting new posts')
+          setIsGenerating(false)
+          localStorage.removeItem(GENERATION_STORAGE_KEY)
+          
+          toast.success('Content Generated!', {
+            description: `${posts.length - previousPostCount} new posts have been added.`
+          })
+        }
+      }
+      
+      setPreviousPostCount(posts.length)
+      setPosts(posts)
+    } catch (error) {
+      console.error('❌ Failed to load posts:', error)
+      if (!isAutoRefresh) {
         toast.error('Failed to load posts', {
           description: 'Please try refreshing the page.'
         })
-        setPosts([]) // Set empty array on error
-      } finally {
+      }
+      setPosts([]) // Set empty array on error
+    } finally {
+      if (!isAutoRefresh) {
         setIsLoading(false)
       }
     }
+  }
 
+  // Check for persisted generation state on mount
+  useEffect(() => {
+    const checkGenerationState = () => {
+      try {
+        const stored = localStorage.getItem(GENERATION_STORAGE_KEY)
+        if (stored) {
+          const { startedAt, postCount } = JSON.parse(stored)
+          const elapsed = Date.now() - startedAt
+          
+          // If generation started less than 5 minutes ago, restore the state
+          if (elapsed < GENERATION_TIMEOUT) {
+            console.log('Restoring generation state from localStorage')
+            setIsGenerating(true)
+            setPreviousPostCount(postCount || 0)
+          } else {
+            // Clean up stale generation state
+            console.log('Clearing stale generation state')
+            localStorage.removeItem(GENERATION_STORAGE_KEY)
+          }
+        }
+      } catch (error) {
+        console.error('Error checking generation state:', error)
+        localStorage.removeItem(GENERATION_STORAGE_KEY)
+      }
+    }
+    
+    checkGenerationState()
     loadPosts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Auto-refresh every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadPosts(true) // Silent refresh
+      
+      // Check if generation has been running too long
+      if (isGenerating) {
+        try {
+          const stored = localStorage.getItem(GENERATION_STORAGE_KEY)
+          if (stored) {
+            const { startedAt } = JSON.parse(stored)
+            const elapsed = Date.now() - startedAt
+            
+            if (elapsed > GENERATION_TIMEOUT) {
+              console.log('Generation timeout reached, clearing state')
+              setIsGenerating(false)
+              localStorage.removeItem(GENERATION_STORAGE_KEY)
+              toast.error('Generation Timeout', {
+                description: 'Content generation took too long. Please try again.'
+              })
+            }
+          }
+        } catch (error) {
+          console.error('Error checking generation timeout:', error)
+        }
+      }
+    }, 5000)
+
+    return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGenerating, previousPostCount])
 
   const handleViewChange = (view: ViewMode) => {
     setCurrentView(view)
@@ -126,6 +217,13 @@ export default function Home() {
     }
     
     setIsGenerating(true)
+    setPreviousPostCount(posts.length) // Track current count before generation
+    
+    // Persist generation state to localStorage
+    localStorage.setItem(GENERATION_STORAGE_KEY, JSON.stringify({
+      startedAt: Date.now(),
+      postCount: posts.length
+    }))
     
     try {
       // Send restaurant settings to webhook
@@ -144,15 +242,23 @@ export default function Home() {
       })
       
       if (response.ok) {
-        const result = await response.json()
+        const result = await response.text() // Changed to text() to handle "Done" response
         console.log('Content generation response:', result)
         
-        toast.success('Content Generated!', {
-          description: 'New content has been generated based on your restaurant settings.'
-        })
-        
-        // In a real app, this would add new generated content to the posts
-        console.log('Content generation complete')
+        if (result === 'Done' || result.includes('Done')) {
+          // Generation completed successfully
+          setIsGenerating(false)
+          
+          // Clear persisted generation state
+          localStorage.removeItem(GENERATION_STORAGE_KEY)
+          
+          toast.success('Content Generated!', {
+            description: 'New content has been generated and added to your calendar.'
+          })
+          
+          // Force a refresh to get the latest posts
+          await loadPosts(true)
+        }
       } else {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
@@ -161,8 +267,10 @@ export default function Home() {
       toast.error('Generation Failed', {
         description: 'Failed to generate content. Please try again.'
       })
-    } finally {
       setIsGenerating(false)
+      
+      // Clear persisted generation state on error
+      localStorage.removeItem(GENERATION_STORAGE_KEY)
     }
   }
 
@@ -181,7 +289,7 @@ export default function Home() {
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto h-full">
-        {(isLoading || isGenerating) ? (
+        {isLoading ? (
           <LoadingSkeleton view={currentView} />
         ) : (
           <>
@@ -189,6 +297,7 @@ export default function Home() {
               <GridView
                 posts={posts}
                 isLoading={isLoading}
+                isGenerating={isGenerating}
                 onDeletePost={handleDeletePost}
                 onViewPost={handleViewPost}
                 onUpdatePost={handleUpdatePost}
@@ -196,22 +305,30 @@ export default function Home() {
             )}
             
             {currentView === 'calendar' && (
-              <CalendarView
-                posts={posts}
-                isLoading={isLoading}
-                onDeletePost={handleDeletePost}
-                onViewPost={handleViewPost}
-                onUpdatePost={handleUpdatePost}
-              />
+              isGenerating ? (
+                <LoadingSkeleton view="calendar" />
+              ) : (
+                <CalendarView
+                  posts={posts}
+                  isLoading={isLoading}
+                  onDeletePost={handleDeletePost}
+                  onViewPost={handleViewPost}
+                  onUpdatePost={handleUpdatePost}
+                />
+              )
             )}
             
             {currentView === 'kanban' && (
-              <KanbanView
-                posts={posts}
-                isLoading={isLoading}
-                onDeletePost={handleDeletePost}
-                onViewPost={handleViewPost}
-              />
+              isGenerating ? (
+                <LoadingSkeleton view="kanban" />
+              ) : (
+                <KanbanView
+                  posts={posts}
+                  isLoading={isLoading}
+                  onDeletePost={handleDeletePost}
+                  onViewPost={handleViewPost}
+                />
+              )
             )}
           </>
         )}

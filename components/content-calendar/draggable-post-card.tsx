@@ -94,14 +94,38 @@ export function DraggablePostCard({
             </div>
           </div>
 
+          {/* Tags - Show first 2 tags */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {post.tags.slice(0, 2).map((tag, index) => (
+                <Badge
+                  key={`${tag}-${index}`}
+                  variant="secondary"
+                  className="text-xs px-1 py-0 h-4 bg-gray-100 text-gray-600"
+                >
+                  {tag.length > 10 ? tag.slice(0, 10) + '...' : tag}
+                </Badge>
+              ))}
+              {post.tags.length > 2 && (
+                <span className="text-xs text-gray-500">+{post.tags.length - 2}</span>
+              )}
+            </div>
+          )}
+
           {/* Platforms */}
           {post.platforms && post.platforms.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {post.platforms.slice(0, 2).map((platform) => (
+              {post.platforms.slice(0, 2).map((platform, index) => (
                 <Badge
-                  key={platform}
+                  key={`${platform}-${index}`}
                   variant="outline"
-                  className="text-xs px-1 py-0 h-4"
+                  className={cn(
+                    "text-xs px-1 py-0 h-4",
+                    platform === 'Facebook' && "border-blue-500 text-blue-600",
+                    platform === 'Instagram' && "border-pink-500 text-pink-600",
+                    platform === 'LinkedIn' && "border-blue-700 text-blue-700",
+                    platform === 'YouTube' && "border-red-500 text-red-600"
+                  )}
                 >
                   {platform.slice(0, 2)}
                 </Badge>

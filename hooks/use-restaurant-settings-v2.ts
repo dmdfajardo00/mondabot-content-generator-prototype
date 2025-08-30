@@ -24,44 +24,19 @@ const DEFAULT_SETTINGS: RestaurantSettings = {
 
 const STORAGE_KEY = 'restaurant-settings'
 
-export function useRestaurantSettings() {
+export function useRestaurantSettingsV2() {
   const [settings, setSettings] = useState<RestaurantSettings>(DEFAULT_SETTINGS)
   const [isLoading, setIsLoading] = useState(true)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   // Load settings from localStorage on mount
   useEffect(() => {
-    console.log('🔄 Loading settings from localStorage...')
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
-      console.log('📦 Raw localStorage data:', stored)
       
       if (stored) {
         const parsed = JSON.parse(stored)
-        console.log('✅ Parsed settings:', parsed)
-        
-        // Migration: Handle old socialPlatforms array format
-        if (parsed.socialPlatforms && Array.isArray(parsed.socialPlatforms)) {
-          const migrated = {
-            ...DEFAULT_SETTINGS,
-            ...parsed,
-            mainSocialPlatform: parsed.socialPlatforms[0] || '',
-            weeklyPostCount: parsed.weeklyPostCount || '',
-          }
-          delete migrated.socialPlatforms
-          setSettings(migrated)
-          // Save migrated data
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
-        } else {
-          // Ensure new fields exist with defaults
-          const updated = {
-            ...DEFAULT_SETTINGS,
-            ...parsed,
-          }
-          setSettings(updated)
-        }
-      } else {
-        setSettings(DEFAULT_SETTINGS)
+        setSettings(parsed)
       }
     } catch (error) {
       console.error('Failed to load settings:', error)

@@ -11,8 +11,27 @@ export class PostsAPI {
       const response = await fetch('/api/posts')
       
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(`API error: ${errorData.error || response.statusText}`)
+        const errorText = await response.text()
+        // Only log actual errors, not fetch failures
+        if (!errorText.includes('fetch failed')) {
+          console.error('API response error:', errorText)
+        }
+        try {
+          const errorData = JSON.parse(errorText)
+          // Return empty array for fetch failures instead of throwing
+          if (errorData.error && errorData.error.includes('fetch failed')) {
+            console.warn('Supabase temporarily unreachable, returning empty posts array')
+            return []
+          }
+          throw new Error(`API error: ${errorData.error || response.statusText}`)
+        } catch (parseError) {
+          // If it's a JSON parse error on fetch failure response, return empty array
+          if (errorText.includes('fetch failed')) {
+            console.warn('Supabase temporarily unreachable, returning empty posts array')
+            return []
+          }
+          throw new Error(`API error: ${response.statusText}`)
+        }
       }
       
       const posts = await response.json()
@@ -20,8 +39,13 @@ export class PostsAPI {
       
       return posts
     } catch (error) {
+      // Handle all fetch failures gracefully
+      if (error instanceof TypeError && error.message === 'fetch failed') {
+        console.warn('API unreachable, returning empty posts array')
+        return []
+      }
       console.error('❌ Error fetching posts:', error)
-      throw error
+      return [] // Return empty array for any error to prevent app crash
     }
   }
 

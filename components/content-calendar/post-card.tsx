@@ -3,12 +3,14 @@
 import { Post } from '@/types/post'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { 
   MoreHorizontal, 
   Calendar, 
   Eye,
-  Trash2
+  Trash2,
+  Tag,
+  Share2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
@@ -93,6 +95,61 @@ export function PostCard({
             {post.hashtags}
           </p>
         </div>
+
+        {/* Tags and Platforms - Only show in grid/kanban view */}
+        {!isCompact && (
+          <div className="space-y-2">
+            {/* Tags */}
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Tag className="h-3 w-3 text-gray-400" />
+                <div className="flex flex-wrap gap-1">
+                  {post.tags.slice(0, 3).map((tag, index) => (
+                    <Badge
+                      key={`${tag}-${index}`}
+                      variant="secondary"
+                      className="text-xs px-2 py-0 h-5 bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                  {post.tags.length > 3 && (
+                    <Badge
+                      variant="secondary"
+                      className="text-xs px-2 py-0 h-5 bg-gray-100 text-gray-600"
+                    >
+                      +{post.tags.length - 3}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Platforms */}
+            {post.platforms && post.platforms.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Share2 className="h-3 w-3 text-gray-400" />
+                <div className="flex flex-wrap gap-1">
+                  {post.platforms.map((platform) => (
+                    <Badge
+                      key={platform}
+                      variant="outline"
+                      className={cn(
+                        "text-xs px-2 py-0 h-5 border",
+                        platform === 'Facebook' && "border-blue-500 text-blue-600 bg-blue-50",
+                        platform === 'Instagram' && "border-pink-500 text-pink-600 bg-pink-50",
+                        platform === 'LinkedIn' && "border-blue-700 text-blue-700 bg-blue-50",
+                        platform === 'YouTube' && "border-red-500 text-red-600 bg-red-50"
+                      )}
+                    >
+                      {platform}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Actions */}
         {!isCompact && (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import * as z from 'zod'
 import { toast } from 'sonner'
 import { Loader2, RotateCcw, Save } from 'lucide-react'
@@ -116,26 +116,37 @@ export function RestaurantSettings() {
   const { settings, saveSettings, resetSettings, isLoading } = useRestaurantSettings()
   const [isSaving, setIsSaving] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      restaurantName: '',
-      location: '',
-      cuisineType: '',
-      dailyCustomerCount: '',
-      teamSize: '',
-      mainSocialPlatform: '',
-      weeklyPostCount: '',
-      brandTone: '',
-    },
+  // Debug logging
+  console.log('🔍 RestaurantSettings render:', {
+    isLoading,
+    settings,
+    timestamp: new Date().toISOString()
   })
 
-  // Sync form with loaded settings from localStorage
-  useEffect(() => {
-    if (!isLoading) {
-      form.reset(settings)
-    }
-  }, [settings, isLoading, form])
+  // Only initialize form after settings are loaded
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: settings,
+  })
+
+  // Show loading state while settings are loading
+  if (isLoading) {
+    return (
+      <Card className="w-full max-w-full mx-auto border-gray-300">
+        <CardHeader>
+          <CardTitle className="text-2xl text-gray-900">Restaurant Settings</CardTitle>
+          <CardDescription className="text-gray-600">
+            Loading your settings...
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true)
@@ -173,7 +184,7 @@ export function RestaurantSettings() {
   }
 
   return (
-    <Card className="w-full max-w-full mx-auto">
+    <Card className="w-full max-w-full mx-auto border-gray-300">
       <CardHeader>
         <CardTitle className="text-2xl text-gray-900">Restaurant Settings</CardTitle>
         <CardDescription className="text-gray-600">
@@ -234,13 +245,13 @@ export function RestaurantSettings() {
                 />
 
                 {/* Cuisine Type */}
-                <FormField
+                <Controller
                   control={form.control}
                   name="cuisineType"
-                  render={({ field }) => (
+                  render={({ field, fieldState: { error } }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-medium">Cuisine Type</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="border-gray-300 focus:border-gray-400 h-11">
                             <SelectValue placeholder="Select cuisine type" />
@@ -257,19 +268,19 @@ export function RestaurantSettings() {
                       <FormDescription className="text-gray-500 text-sm">
                         Primary type of food you serve
                       </FormDescription>
-                      <FormMessage />
+                      {error && <FormMessage>{error.message}</FormMessage>}
                     </FormItem>
                   )}
                 />
 
                 {/* Brand Tone */}
-                <FormField
+                <Controller
                   control={form.control}
                   name="brandTone"
-                  render={({ field }) => (
+                  render={({ field, fieldState: { error } }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-medium">Brand Tone</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="border-gray-300 focus:border-gray-400 h-11">
                             <SelectValue placeholder="Select brand tone" />
@@ -286,7 +297,7 @@ export function RestaurantSettings() {
                       <FormDescription className="text-gray-500 text-sm">
                         How you want to communicate with your audience
                       </FormDescription>
-                      <FormMessage />
+                      {error && <FormMessage>{error.message}</FormMessage>}
                     </FormItem>
                   )}
                 />
@@ -300,13 +311,13 @@ export function RestaurantSettings() {
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Daily Customer Count */}
-                <FormField
+                <Controller
                   control={form.control}
                   name="dailyCustomerCount"
-                  render={({ field }) => (
+                  render={({ field, fieldState: { error } }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-medium">Daily Customer Count</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="border-gray-300 focus:border-gray-400 h-11">
                             <SelectValue placeholder="Select customer count" />
@@ -323,19 +334,19 @@ export function RestaurantSettings() {
                       <FormDescription className="text-gray-500 text-sm">
                         Average number of customers served daily
                       </FormDescription>
-                      <FormMessage />
+                      {error && <FormMessage>{error.message}</FormMessage>}
                     </FormItem>
                   )}
                 />
 
                 {/* Team Size */}
-                <FormField
+                <Controller
                   control={form.control}
                   name="teamSize"
-                  render={({ field }) => (
+                  render={({ field, fieldState: { error } }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-medium">Team Size</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="border-gray-300 focus:border-gray-400 h-11">
                             <SelectValue placeholder="Select team size" />
@@ -352,7 +363,7 @@ export function RestaurantSettings() {
                       <FormDescription className="text-gray-500 text-sm">
                         Total number of employees at your restaurant
                       </FormDescription>
-                      <FormMessage />
+                      {error && <FormMessage>{error.message}</FormMessage>}
                     </FormItem>
                   )}
                 />
@@ -366,13 +377,13 @@ export function RestaurantSettings() {
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Main Social Media Platform */}
-                <FormField
+                <Controller
                   control={form.control}
                   name="mainSocialPlatform"
-                  render={({ field }) => (
+                  render={({ field, fieldState: { error } }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-medium">Main Social Media Platform</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="border-gray-300 focus:border-gray-400 h-11">
                             <SelectValue placeholder="Select your primary platform" />
@@ -389,19 +400,19 @@ export function RestaurantSettings() {
                       <FormDescription className="text-gray-500 text-sm">
                         Your primary platform for social media marketing
                       </FormDescription>
-                      <FormMessage />
+                      {error && <FormMessage>{error.message}</FormMessage>}
                     </FormItem>
                   )}
                 />
 
                 {/* Weekly Post Count */}
-                <FormField
+                <Controller
                   control={form.control}
                   name="weeklyPostCount"
-                  render={({ field }) => (
+                  render={({ field, fieldState: { error } }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-medium">Weekly Posting Frequency</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="border-gray-300 focus:border-gray-400 h-11">
                             <SelectValue placeholder="Select posting frequency" />
@@ -418,7 +429,7 @@ export function RestaurantSettings() {
                       <FormDescription className="text-gray-500 text-sm">
                         How many posts per week do you want to publish?
                       </FormDescription>
-                      <FormMessage />
+                      {error && <FormMessage>{error.message}</FormMessage>}
                     </FormItem>
                   )}
                 />

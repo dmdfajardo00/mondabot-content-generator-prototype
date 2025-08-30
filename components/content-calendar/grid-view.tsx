@@ -5,11 +5,13 @@ import { Post } from '@/types/post'
 import { PostCard } from './post-card'
 import { PostDetailModal } from './post-detail-modal'
 import { EmptyState } from './empty-state'
+import { SingleCardSkeleton } from './single-card-skeleton'
 import { cn } from '@/lib/utils'
 
 interface GridViewProps {
   posts: Post[]
   isLoading?: boolean
+  isGenerating?: boolean
   onCreatePost?: () => void
   onDeletePost?: (post: Post) => void
   onViewPost?: (post: Post) => void
@@ -20,6 +22,7 @@ interface GridViewProps {
 export function GridView({
   posts,
   isLoading = false,
+  isGenerating = false,
   onCreatePost,
   onDeletePost,
   onViewPost,
@@ -37,7 +40,7 @@ export function GridView({
   const handleModalSave = (updatedPost: Post) => {
     onUpdatePost?.(updatedPost)
   }
-  if (!isLoading && posts.length === 0) {
+  if (!isLoading && posts.length === 0 && !isGenerating) {
     return (
       <EmptyState
         title="No posts found"
@@ -65,6 +68,10 @@ export function GridView({
             className="transition-all duration-200 hover:scale-[1.02] cursor-pointer"
           />
         ))}
+        {/* Show single skeleton card when generating new content */}
+        {isGenerating && (
+          <SingleCardSkeleton className="animate-in fade-in-0 slide-in-from-bottom-2 duration-500" />
+        )}
       </div>
 
       {/* Post Detail Modal */}

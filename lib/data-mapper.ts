@@ -21,6 +21,16 @@ function derivePostStatus(postingDate: string): Post['status'] {
 
 // Transform database post to UI Post interface
 export function transformDbPostToPost(dbPost: DbPost): Post {
+  // Debug logging for platforms data structure
+  if (dbPost.platforms) {
+    console.log('🔍 Platform data from DB:', {
+      raw: dbPost.platforms,
+      isArray: Array.isArray(dbPost.platforms),
+      firstElement: dbPost.platforms[0],
+      isNestedArray: Array.isArray(dbPost.platforms[0])
+    })
+  }
+  
   return {
     id: dbPost.content_id,
     date: dbPost.posting_date,
@@ -28,8 +38,16 @@ export function transformDbPostToPost(dbPost: DbPost): Post {
     text: dbPost.social_media_text,
     description: dbPost.content_description || '',
     hashtags: extractHashtagsFromText(dbPost.social_media_text), // Always derive from text
-    tags: Array.isArray(dbPost.tags) ? dbPost.tags : [],
-    platforms: Array.isArray(dbPost.platforms) ? dbPost.platforms as Platform[] : ['Instagram'],
+    tags: Array.isArray(dbPost.tags) 
+      ? (Array.isArray(dbPost.tags[0]) 
+        ? dbPost.tags[0]  // Handle nested array [["tag1", "tag2"]]
+        : dbPost.tags)    // Handle normal array ["tag1", "tag2"]
+      : [],
+    platforms: Array.isArray(dbPost.platforms) 
+      ? (Array.isArray(dbPost.platforms[0]) 
+        ? dbPost.platforms[0] as Platform[]  // Handle nested array [["Facebook", "Instagram"]]
+        : dbPost.platforms as Platform[])    // Handle normal array ["Facebook", "Instagram"]
+      : ['Instagram'],
     imageUrl: dbPost.thumbnail_url || '', // Critical: map thumbnail_url to imageUrl
     status: derivePostStatus(dbPost.posting_date) // Always derive from date
   }
