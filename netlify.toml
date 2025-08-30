@@ -8,18 +8,9 @@
   # Disable secrets scanning for build output
   SECRETS_SCAN_OMIT_PATHS = ".next/**,_next/**,.netlify/**"
 
-# Netlify Edge Functions and redirects
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
-# Handle Next.js client-side routing
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  conditions = {Role = ["admin"]}
+# Essential: Enable Next.js plugin for Netlify
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 # Custom headers for security
 [[headers]]
