@@ -96,8 +96,8 @@ export function Sidebar({ className }: SidebarProps) {
         {isDropdownOpen && (
           <div className="absolute bottom-full left-3 right-3 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 animate-in slide-in-from-bottom-2 fade-in-0 duration-200">
             <div className="px-4 py-3 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">Sergio Bernal</p>
-              <p className="text-xs text-gray-600">sergio@restaurant.com</p>
+              <p className="text-sm font-medium text-gray-900">Dave Fajardo</p>
+              <p className="text-xs text-gray-600">dmd.fajardo2000@gmail.com</p>
             </div>
             
             <div className="py-1">
@@ -135,13 +135,13 @@ export function Sidebar({ className }: SidebarProps) {
           className="w-full p-3 flex items-center space-x-3 hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-200 cursor-pointer"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/sergio_bernal.png" alt="Sergio Bernal" />
+            <AvatarImage src="https://res.cloudinary.com/dhqgytdpn/image/upload/v1756617557/dave-profile-pic-1_uzdzzg.png" alt="Dave Fajardo" />
             <AvatarFallback className="bg-gray-100 text-gray-600">
-              SB
+              DF
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 text-left">
-            <span className="text-sm font-medium text-gray-900 block">Sergio Bernal</span>
+            <span className="text-sm font-medium text-gray-900 block">Dave Fajardo</span>
             <span className="text-xs text-gray-600">Pro Version</span>
           </div>
           <ChevronUp className={cn(
